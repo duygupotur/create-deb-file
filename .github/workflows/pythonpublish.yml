@@ -36,6 +36,9 @@ jobs:
         run: |
           ls
           pwd
+          cd src
+          ls
+          pwd
           mkdir DEBIAN
           touch DEBIAN/md5sums
           touch DEBIAN/control
@@ -50,13 +53,12 @@ jobs:
           Priority: important
           Description: Example Pack
           """ > DEBIAN/control
-          rm -rf .git .github
           cd ../
-          dpkg-deb -Zgzip --build create-deb-file
+          dpkg-deb -Zgzip --build src
           mkdir dist
           pwd
           ls
-          echo ::set-output name=filename::create-deb-file.deb
+          echo ::set-output name=filename::$(pwd)/create-deb-file.deb
 
       - name: Print the Variables
         run: |
