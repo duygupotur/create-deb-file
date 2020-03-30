@@ -19,8 +19,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v4
-          release_name: Fourth v4
+          tag_name: v5
+          release_name: Fifth v5
           body: |
             Changes in this Release
             - Print files in current directory
