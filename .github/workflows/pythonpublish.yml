@@ -28,7 +28,7 @@ jobs:
           prerelease: false
       - name: Build
         run: |
-          ls -r
+          cd src
           mkdir DEBIAN
           touch DEBIAN/md5sums
           touch DEBIAN/control
@@ -44,8 +44,9 @@ jobs:
           Description: Example Pack
           """ > DEBIAN/control
           dpkg-deb -Zgzip --build create-deb-file
-          mkdir ../packages
-          mv  create-deb-file.deb ../packages/
+          cd ../
+          mkdir packages
+          mv src/create-deb-file.deb packages/
           echo ::set-output name=filename::create-deb-file.deb
 
       - name: Print the Variables
