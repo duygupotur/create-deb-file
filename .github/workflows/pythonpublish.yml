@@ -33,6 +33,7 @@ jobs:
           prerelease: false
 
       - name: Build
+        id: build_package
         run: |
           ls
           pwd
@@ -43,9 +44,10 @@ jobs:
           touch DEBIAN/md5sums
           touch DEBIAN/control
           find . -type f ! -regex '.*.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum  1>/dev/null 2>/dev/null || true
+          size=$(du -s src | cut -f 1)
           echo """Package: Package
           Version: $GITHUB_RUN_ID
-          Installed-Size: 29892
+          Installed-Size: $size
           Maintainer: Duygu Ölmez <zeynepduyguolmez@gmail.com>
           Section: admin
           Date : $GITHUB_RUN_ID
@@ -54,11 +56,13 @@ jobs:
           Description: Example Pack
           """ > DEBIAN/control
           cd ../
-          dpkg-deb -Zgzip --build src
+          mv src python-package
+          dpkg-deb -Zgzip --build python-package
           mkdir dist
           pwd
           ls
-          echo ::set-output name=filename::$(pwd)/create-deb-file.deb
+          echo ::set-output name=path::$(pwd)/python-package.deb
+          echo ::set-output name=filename::python-package.deb
 
       - name: Print the Variables
         run: |
@@ -73,6 +77,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /home/runner/work/create-deb-file/create-deb-file.deb
-          asset_name: create-deb.deb
+          asset_path: ${{ steps.build_package.outputs.path }}
+          asset_name: ${{ steps.build_package.outputs.filename }}
           asset_content_type: application/vnd.debian.binary-package
