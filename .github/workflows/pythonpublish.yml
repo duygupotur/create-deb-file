@@ -1,0 +1,66 @@
+name: Publish
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    branches: ["master"]
+
+jobs:
+  build:
+    name: Publish binaries
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v3
+          release_name: Third v3
+          body: |
+            Changes in this Release
+            - Print release parameters
+          draft: false
+          prerelease: false
+      - name: Build
+        run: |
+          cd src
+          mkdir DEBIAN
+          touch DEBIAN/md5sums
+          touch DEBIAN/control
+          find . -type f ! -regex '.*.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum  1>/dev/null 2>/dev/null || true
+          echo """Package: Package
+          Version: $GITHUB_RUN_ID
+          Installed-Size: 29892
+          Maintainer: Duygu Ölmez <zeynepduyguolmez@gmail.com>
+          Section: admin
+          Date : $GITHUB_RUN_ID
+          Architecture: amd64
+          Priority: important
+          Description: Example Pack
+          """ > DEBIAN/control
+          dpkg-deb -Zgzip --build create-deb-file
+          mkdir ../packages
+          mv  create-deb-file.deb ../packages/
+          echo ::set-output name=filename::create-deb-file.deb
+
+      - name: Print the Variables
+        run: |
+          echo "upload_url: " ${{ steps.create_release.outputs.upload_url }}
+          echo "filename: " ${{ steps.create_release.outputs.filename }}
+          echo "github.ref: " ${{ github.ref }}
+
+      - name: Upload the Debian package to Release Assets
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: /home/runner/work/create-deb-file/packages/create-debfile.deb
+          asset_name: create-deb.deb
+          asset_content_type: application/vnd.debian.binary-package
