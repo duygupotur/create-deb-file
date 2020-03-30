@@ -19,16 +19,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v1
-          release_name: First v1
+          tag_name: v2
+          release_name: First v2
           body: |
             Changes in this Release
-            - Print release parameters
+            - Print files in current directory
           draft: false
           prerelease: false
       - name: Build
         run: |
-          cd src
+          ls -r
           mkdir DEBIAN
           touch DEBIAN/md5sums
           touch DEBIAN/control
