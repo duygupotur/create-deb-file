@@ -45,10 +45,10 @@ jobs:
           touch DEBIAN/control
           find . -type f ! -regex '.*.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum  1>/dev/null 2>/dev/null || true
           size=$(du -s src | cut -f 1)
-          echo """
+          echo "
           cikti $size
-          """
-          echo """Package: Package
+          "
+          echo "Package: Package
           Version: $GITHUB_RUN_ID
           Installed-Size: $size
           Maintainer: Duygu Ölmez <zeynepduyguolmez@gmail.com>
@@ -57,7 +57,7 @@ jobs:
           Architecture: amd64
           Priority: important
           Description: Example Pack
-          """ > DEBIAN/control
+          " > DEBIAN/control
           cd ../
           mv src python-package
           dpkg-deb -Zgzip --build python-package
