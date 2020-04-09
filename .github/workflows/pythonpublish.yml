@@ -32,15 +32,6 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Build Docker
-        run: |
-          docker build . --file Dockerfile --tag sambadev
-          docker run sambadev
-
-      - name: Get Samba From Docker
-        run: |
-          docker create -ti --name dummy sambadev bash
-
       - name: Build
         id: build_package
         run: |
